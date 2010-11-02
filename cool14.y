@@ -25,11 +25,17 @@
 %token <ystr> ITIPO
 %token <ystr> CADENA
 %token CLASS ELSE FALSE FI IF IN INHERITS ISVOID LET LOOP POOL THEN WHILE
-%token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ITIPO TOBJ ASIG
+%token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ASIG
 %token '(' ')' '{' '}' '[' ']' ',' ';' '.' ':'
-%left IGIG  MENIG MAYIG '<' '>' '¬'
+%left ASIG
+%left NOT
+%left LEQ GEQ EQ NEQ '<' '>' '¬'
 %left '+' '-'
 %left '*' '/'
+%left ISVOID
+%left '@'
+%left '.'
+
 /*%type <type> type_specifier
 %type <ast> programa class feature expr
 %type <ast> class_list feature_list expr_list formal_list
@@ -39,60 +45,79 @@
 programa : class_list  {printf("Programa correcto\n");}
 ;
 
-class_list	: class ';'
-		| class ';' class_list
+class_list	:  class class_list ';'
+		|  class ';'
 ;
 
-class 	: CLASS TOBJ '{' feature_list '}'
-	| CLASS TOBJ INHERITS TOBJ '{' feature_list '}'
+class 	: CLASS ITIPO '{' feature_list '}' ';'
+	| CLASS ITIPO INHERITS ITIPO '{' feature_list '}' ';'
 ;
 
-feature_list	: feature feature_list
+feature_list	: feature feature_list 
 		| feature 
 		| /* vacio*/
 ;
-feature	: IOBJ '(' formal_list ')' ':' TOBJ '{' expr '}'
-	| IOBJ ':' TOBJ ASIG expr
-	| IOBJ ':' TOBJ
+feature	: IOBJ '(' formal_list ')' ':' ITIPO '{' expr '}'
+	| IOBJ feature_tob
 ;
-formal_list	: IOBJ ':' TOBJ ','
-		| IOBJ ':' TOBJ
+
+feature_tob	: ':' ITIPO ASIG expr
+		| ':' ITIPO
+;
+
+formal_list	: IOBJ ':' ITIPO ','
+		| IOBJ ':' ITIPO
 		| /* vacio*/
 ;
-expr_list	: expr expr_list ';'
+
+expr_list	: expr feature_list ';' 
 		| expr ';'
 ;
 
-expr_list_e	: expr expr_list_e
-		| expr 
-		| /*expresion con epsilon*/
+expr_list_e	: expr ','
+		| expr ',' expr_list_e
+		| /* expresion con epsilon */
 ;
-/* Falta poner: expr [@TYPE].ID(expr,*)
+/* Falta poner:
 * 		let [[ID:TYPE[<- expr],]]+ in expr
 *		case expr of [[ID:TYPE=> expr;]]+ ESAC
 */
-expr	: IOBJ ASIG expr
-	| IOBJ '(' expr_list_e ')'
-	//| IF expr THEN expr ELSE expr FI 
-	//| WHILE expr LOOP expr POOL
-	| '{' expr_list '}'
-	| NEW TOBJ
+
+expr	: exp_asigna
+	| IOBJ '(' expr_list_e ')' // genera un conflicot de recuccion
+	| IF exp_simple THEN expr ELSE expr FI 
+	| exp_bloques
+	| exp_dispatch 
+	| WHILE exp_simple LOOP expr POOL
+	| NEW ITIPO
 	| ISVOID expr
-	| exp_aditive
+	| exp_simple
 	| '¬' expr
-	| exp_aditive '<' exp_aditive
-	| exp_aditive '>' exp_aditive
-	| exp_aditive MENIG exp_aditive
-	| exp_aditive IGIG exp_aditive
-	| NOT expr 
-	| IOBJ
+	| NOT expr
 	| CADENA
 	| TRUE
 	| FALSE
 ;
 
-exp_aditive :exp_aditive '+' term
-										
+exp_bloques: '{' expr_list '}'
+;
+exp_dispatch: expr '@' ITIPO '.' IOBJ '(' expr_list_e ')'
+	    | expr '.' IOBJ '(' expr_list_e ')'
+;
+exp_asigna	: IOBJ ASIG exp_aditive
+		| IOBJ ASIG CADENA
+;
+
+exp_simple:     exp_aditive LEQ exp_aditive
+		|exp_aditive '<' exp_aditive
+		|exp_aditive '>' exp_aditive
+		|exp_aditive GEQ exp_aditive
+		|exp_aditive EQ exp_aditive
+		|exp_aditive NEQ exp_aditive
+		|exp_aditive
+;
+
+exp_aditive :exp_aditive '+' term						
 	|exp_aditive '-' term			
 	|term				
 ;
@@ -101,24 +126,21 @@ term	:term '*' factor
 	|term '/' factor		
 	|factor		
 ;
-;
-factor	:'(' exp_aditive ')'		
+factor	:'(' exp_simple ')'		
 	|IOBJ						
 	|NUM
 ;
+
 %% 
 
-int main() {
-   yyparse(); ...
-}
-
-yyerror (char *s)
+int main(int argc,char **argv)
 {
-  printf ("%s\n", s);
+    //init_stringpool(10000); /* String table */
+    yyparse();
+    return type_check(ast_root);
 }
-
-int yywrap()  
-{  
-   return 1;  
-} 
+int yyerror(char *m) {
+    fprintf(stderr,"line %d: %s\n",lineno,m);
+    return 0;
+}
 
