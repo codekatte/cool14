@@ -24,22 +24,18 @@
 %token <ystr> IOBJ
 %token <ystr> ITIPO
 %token <ystr> CADENA
-%token CLASS ELSE FALSE FI IF IN INHERITS ISVOID LET LOOP POOL THEN WHILE
-%token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ASIG
+%token CLASS ELSE FALSE FI IF IN INHERITS LET LOOP POOL THEN WHILE
+%token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ASIG EQMA
 %token '(' ')' '{' '}' '[' ']' ',' ';' '.' ':'
-%left ASIG
+%right ASIG
 %left NOT
-%left LEQ GEQ EQ NEQ '<' '>' '¬'
+%left MEQ '<' EQ 
 %left '+' '-'
 %left '*' '/'
 %left ISVOID
+%left '~'
 %left '@'
 %left '.'
-
-/*%type <type> type_specifier
-%type <ast> programa class feature expr
-%type <ast> class_list feature_list expr_list formal_list
-*/
 %%
 
 programa : class_list  {printf("Programa correcto\n");}
@@ -70,67 +66,56 @@ formal_list	: IOBJ ':' ITIPO ','
 		| /* vacio*/
 ;
 
-expr_list	: expr feature_list ';' 
-		| expr ';'
-;
-
-expr_list_e	: expr ','
-		| expr ',' expr_list_e
-		| /* expresion con epsilon */
-;
-/* Falta poner:
-* 		let [[ID:TYPE[<- expr],]]+ in expr
-*		case expr of [[ID:TYPE=> expr;]]+ ESAC
-*/
-
-expr	: exp_asigna
-	| IOBJ '(' expr_list_e ')' // genera un conflicot de recuccion
-	| IF exp_simple THEN expr ELSE expr FI 
-	| exp_bloques
-	| exp_dispatch 
-	| WHILE exp_simple LOOP expr POOL
+expr	: IOBJ ASIG expr
+	| exp_dispatch
+	| IOBJ '(' expr_list_e ')'
+	| WHILE expr LOOP expr POOL 
+	| IF expr THEN expr ELSE expr FI 
+	| expr_block
+	//| LET IOBJ ':' ITIPO IN expr
+	| CASE expr OF id_type_plus ESAC
 	| NEW ITIPO
 	| ISVOID expr
-	| exp_simple
-	| '¬' expr
+	| expr '+' expr
+	| expr '-' expr
+	| expr '*' expr
+	| expr '/' expr
+	| '~' expr
+	| expr '<' expr
+	| expr MEQ expr
+	| expr EQ expr
 	| NOT expr
+	| '(' expr ')'
 	| CADENA
+	| NUM
 	| TRUE
 	| FALSE
 ;
 
-exp_bloques: '{' expr_list '}'
-;
 exp_dispatch: expr '@' ITIPO '.' IOBJ '(' expr_list_e ')'
 	    | expr '.' IOBJ '(' expr_list_e ')'
 ;
-exp_asigna	: IOBJ ASIG exp_aditive
-		| IOBJ ASIG CADENA
+
+expr_list	: expr_list expr ';' 
+		| expr ';'
+;
+expr_block	: '{' expr_list '}'
 ;
 
-exp_simple:     exp_aditive LEQ exp_aditive
-		|exp_aditive '<' exp_aditive
-		|exp_aditive '>' exp_aditive
-		|exp_aditive GEQ exp_aditive
-		|exp_aditive EQ exp_aditive
-		|exp_aditive NEQ exp_aditive
-		|exp_aditive
+expr_list_e	: expr ',' expr_list_e  
+		| expr
+		|
+;
+id_type_plus	: IOBJ ':' ITIPO EQMA expr ';'
+		| id_type_plus IOBJ ':' ITIPO EQMA expr ';'
+;
+/*
+id_plus : IOBJ ':' ITIPO id_plus_a  
 ;
 
-exp_aditive :exp_aditive '+' term						
-	|exp_aditive '-' term			
-	|term				
-;
-
-term	:term '*' factor		
-	|term '/' factor		
-	|factor		
-;
-factor	:'(' exp_simple ')'		
-	|IOBJ						
-	|NUM
-;
-
+id_plus_a : ASIG expr
+	| ',' id_plus
+;*/
 %% 
 
 int main(int argc,char **argv)

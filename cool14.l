@@ -32,13 +32,6 @@ extern FILE *fin; /* we read from this file */
  * This change makes it possible to use this scanner in
  * the Cool compiler.
  */
-#undef YY_INPUT
-#define YY_INPUT(buf,result,max_size) \
-	if ( (result = fread( (char*)buf, sizeof(char), max_size, fin)) < 0) \
-		YY_FATAL_ERROR( "read() in flex scanner failed");
-
-extern YYSTYPE cool_yylval;
-
 
 int num_linea=1;
 
@@ -48,19 +41,18 @@ DIGITO [0-9]
 INTEGER [DIGITO][DIGITO]*
 ID [a-z_][a-zA-Z0-9_]*
 IDO [A-Z][a-zA-Z0-9_]*
-TIPOO [Object|Main|IO]
 
 %%
 
 \n  {num_linea++;}
 
 "(*" { register int c;
-	while((c=yyinput())!=0)
+	while((c=input())!=0)
 	{
 		if(c=='\n') num_linea++;
 		else if(c=='*')
 		{
-			if((c=yyinput())==')'){
+			if((c=input())==')'){
 				printf("L%d Comentario\n",num_linea); 
 				break;
 			}
@@ -85,7 +77,7 @@ TIPOO [Object|Main|IO]
 "]" return ']';
 "}" return '}';
 ":" return ':';
-"¬" return '¬';
+"~" return '~';
 ";" return ';';
 "," return ',';
 "<-" return ASIG;
@@ -96,9 +88,10 @@ TIPOO [Object|Main|IO]
 "/" return '/';
 "<" return '<';
 ">" return '>';
-"==" return IGIG;
-"<=" return MENIG;
-">=" return MAYIG;
+"==" return EQ;
+"<=" return MEQ;
+">=" return MAEQ;
+"=>" return EQMA;
 {DIGITO}+ return {yylval.yint = atoi(yytext); return NUM;};
 class return CLASS;
 else return ELSE;
@@ -123,8 +116,6 @@ SELF_TYPE return SELFTYPE;
 self return SELF;
 {IDO} return  ITIPO;
 {ID} return IOBJ;
-{TIPOO} return TOBJ;
-
 . return ERROR;
 
 %%

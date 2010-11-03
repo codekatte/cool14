@@ -90,7 +90,7 @@ class Main is
                         countdown <- countdown - 1;
                     end
                 pool
-            end;  (* end let countdown
+            end;  
             self;
         end
     end;
