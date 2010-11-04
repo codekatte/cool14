@@ -1,3 +1,7 @@
+
+
+%{
+
 /*
 *	Copyright (C) 2010 Agustin Ramirez Hernandez
 *
@@ -14,10 +18,10 @@
 *
 */
 
-%{
+#include <stdio.h>
 
-#define YYSTYPE char*
-
+static int num_linea=1;
+ 
 %}
 
 %token <yint> NUM  
@@ -25,7 +29,7 @@
 %token <ystr> ITIPO
 %token <ystr> CADENA
 %token CLASS ELSE FALSE FI IF IN INHERITS LET LOOP POOL THEN WHILE
-%token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ASIG EQMA
+%token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ASIG EQMA ERROR
 %token '(' ')' '{' '}' '[' ']' ',' ';' '.' ':'
 %right ASIG
 %left NOT
@@ -38,7 +42,7 @@
 %left '.'
 %%
 
-programa : class_list  {printf("Programa correcto\n");}
+programa : class_list
 ;
 
 class_list	:  class class_list ';'
@@ -118,14 +122,17 @@ id_plus_a : ASIG expr
 ;*/
 %% 
 
-int main(int argc,char **argv)
-{
-    //init_stringpool(10000); /* String table */
-    yyparse();
-    return type_check(ast_root);
+
+int main() {
+  yyparse();
+  return 0;
 }
-int yyerror(char *m) {
-    fprintf(stderr,"line %d: %s\n",lineno,m);
+             
+
+int yyerror(s) 
+char *s
+{
+    printf("Error L: %d %s\n",linea,m);
     return 0;
 }
 

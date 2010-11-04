@@ -1,4 +1,7 @@
 
+
+%{
+
 /*
 *	Copyright (C) 2010 Agustin Ramirez Hernandez
 *
@@ -14,26 +17,10 @@
 *	along with this program. If not, see http://www.gnu.org/licenses/.
 *
 */
+#include <stdio.h>
+#include "cool14.tab.h"
 
-%{
-
-#include <stringtab.h>
-#include <utilities.h>
-
-/* The compiler assumes these identifiers. */
-
-/* Max size of string constants */
-#define MAX_STR_CONST 1025
-#define YY_NO_UNPUT   /* keep g++ happy */
-
-extern FILE *fin; /* we read from this file */
-
-/* define YY_INPUT so we read from the FILE fin:
- * This change makes it possible to use this scanner in
- * the Cool compiler.
- */
-
-int num_linea=1;
+external int num_linea=1;
 
 %}
 
@@ -90,9 +77,8 @@ IDO [A-Z][a-zA-Z0-9_]*
 ">" return '>';
 "==" return EQ;
 "<=" return MEQ;
-">=" return MAEQ;
 "=>" return EQMA;
-{DIGITO}+ return {yylval.yint = atoi(yytext); return NUM;};
+{DIGITO}+ return NUM;
 class return CLASS;
 else return ELSE;
 false return FALSE;
@@ -117,6 +103,4 @@ self return SELF;
 {IDO} return  ITIPO;
 {ID} return IOBJ;
 . return ERROR;
-
 %%
-
