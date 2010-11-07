@@ -17,10 +17,11 @@
 *	along with this program. If not, see http://www.gnu.org/licenses/.
 *
 */
-#include <stdio.h>
-#include "cool14.tab.h"
 
-external int num_linea=1;
+#include "y.tab.h"
+#include <stdio.h>
+#define yylval()
+int num_linea=1;
 
 %}
 
@@ -30,7 +31,6 @@ ID [a-z_][a-zA-Z0-9_]*
 IDO [A-Z][a-zA-Z0-9_]*
 
 %%
-
 \n  {num_linea++;}
 
 "(*" { register int c;
@@ -56,28 +56,6 @@ IDO [A-Z][a-zA-Z0-9_]*
 [\t ]+ /* se come los espacios en blanco */
 
 "\""[^}\n]*"\"" return CADENA;
-
-"(" return '(';
-")" return ')';
-"{" return '{';
-"[" return '[';
-"]" return ']';
-"}" return '}';
-":" return ':';
-"~" return '~';
-";" return ';';
-"," return ',';
-"<-" return ASIG;
-"." return ".";
-"+" return '+';
-"-" return '-';
-"*" return '*';
-"/" return '/';
-"<" return '<';
-">" return '>';
-"==" return EQ;
-"<=" return MEQ;
-"=>" return EQMA;
 {DIGITO}+ return NUM;
 class return CLASS;
 else return ELSE;
@@ -102,5 +80,26 @@ SELF_TYPE return SELFTYPE;
 self return SELF;
 {IDO} return  ITIPO;
 {ID} return IOBJ;
+"(" return '(';
+")" return ')';
+"{" return '{';
+"[" return '[';
+"]" return ']';
+"}" return '}';
+":" return ':';
+"~" return '~';
+";" return ';';
+"," return ',';
+"<-" return ASIG;
+"." return ".";
+"+" return '+';
+"-" return '-';
+"*" return '*';
+"/" return '/';
+"<" return '<';
+">" return '>';
+"==" return EQ;
+"<=" return MEQ;
+"=>" return EQMA;
 . return ERROR;
 %%

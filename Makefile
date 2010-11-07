@@ -1,8 +1,12 @@
-cool14 : cool14.tab.c lex.yy.c
-	gcc -o cool14 cool14.tab.c lex.yy.c -lm
 
-cool14.tab.c cool14.tab.h : cool14.y
-	bison -d cool14.y
+main:			y.tab.c lex.yy.c 
+			gcc lex.yy.c y.tab.c -o cool14 -lfl
 
-lex.yy.c : cool14.tab.h cool14.l
-	flex cool14.l
+y.tab.c y.tab.h:	cool14.y
+			bison -y -d cool14.y
+
+lex.yy.c:		cool14.l y.tab.h 
+			flex cool14.l
+
+clean:
+	rm  lex.* y.tab.* cool14

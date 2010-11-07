@@ -18,16 +18,17 @@
 *
 */
 
-#include <stdio.h>
 
-static int num_linea=1;
- 
+#include <stdio.h>
+#define yywrap() 0	
+#define YYSTYPE char*
+
 %}
 
-%token <yint> NUM  
-%token <ystr> IOBJ
-%token <ystr> ITIPO
-%token <ystr> CADENA
+%token NUM  
+%token IOBJ
+%token ITIPO
+%token CADENA
 %token CLASS ELSE FALSE FI IF IN INHERITS LET LOOP POOL THEN WHILE
 %token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ASIG EQMA ERROR
 %token '(' ')' '{' '}' '[' ']' ',' ';' '.' ':'
@@ -57,26 +58,30 @@ feature_list	: feature feature_list
 		| feature 
 		| /* vacio*/
 ;
-feature	: IOBJ '(' formal_list ')' ':' ITIPO '{' expr '}'
-	| IOBJ feature_tob
+// Aqui esta el problem
+feature	: IOBJ feature_tob
 ;
 
-feature_tob	: ':' ITIPO ASIG expr
-		| ':' ITIPO
+feature_tob	: ':' ITIPO
+		| ':' ITIPO ASIG expr
+		| '(' formal_list ')' ':' ITIPO '{' expr '}'
 ;
 
 formal_list	: IOBJ ':' ITIPO ','
 		| IOBJ ':' ITIPO
 		| /* vacio*/
 ;
+expr_asig: ASIG expr
 
-expr	: IOBJ ASIG expr
+;
+
+expr	: IOBJ expr_asig
 	| exp_dispatch
 	| IOBJ '(' expr_list_e ')'
 	| WHILE expr LOOP expr POOL 
 	| IF expr THEN expr ELSE expr FI 
 	| expr_block
-	//| LET IOBJ ':' ITIPO IN expr
+	| expr_let
 	| CASE expr OF id_type_plus ESAC
 	| NEW ITIPO
 	| ISVOID expr
@@ -96,11 +101,14 @@ expr	: IOBJ ASIG expr
 	| FALSE
 ;
 
+expr_let: LET formal_list IN expr_block
+	//| LET formal_list IN expr
+;
 exp_dispatch: expr '@' ITIPO '.' IOBJ '(' expr_list_e ')'
 	    | expr '.' IOBJ '(' expr_list_e ')'
 ;
 
-expr_list	: expr_list expr ';' 
+expr_list	: expr ';' expr_list 
 		| expr ';'
 ;
 expr_block	: '{' expr_list '}'
@@ -113,26 +121,14 @@ expr_list_e	: expr ',' expr_list_e
 id_type_plus	: IOBJ ':' ITIPO EQMA expr ';'
 		| id_type_plus IOBJ ':' ITIPO EQMA expr ';'
 ;
-/*
-id_plus : IOBJ ':' ITIPO id_plus_a  
-;
-
-id_plus_a : ASIG expr
-	| ',' id_plus
-;*/
 %% 
 
-
-int main() {
+int main(int argc,char **argv) {
   yyparse();
-  return 0;
+return 0;
 }
-             
 
-int yyerror(s) 
-char *s
-{
-    printf("Error L: %d %s\n",linea,m);
+int yyerror(char *m) {
+    printf("Error: %s\n",m);
     return 0;
 }
-
