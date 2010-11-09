@@ -1,0 +1,38 @@
+/*
+*	Copyright (C) 2010 Agustin Ramirez Hernandez
+*
+*	This program is free software: you can redistribute it and/or modify
+*	it under the terms of the GNU General Public License as published by
+*	the Free Software Foundation, either version 3 of the License, or (at
+*	your option) any later version.
+*	This program is distributed in the hope that it will be useful, but
+*	WITHOUT ANY WARRANTY; without even the implied warranty of
+*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+*	General Public License for more details.
+*	You should have received a copy of the GNU General Public License
+*	along with this program. If not, see http://www.gnu.org/licenses/.
+*
+*/
+
+*************************************************************************
+COOL14 es un compilador basado en COOL (Classroom Oriented Object 
+Lenguaje) elaborado para la materia de Compiladores de la Facultad De 
+Ingenieria de la Universidad Autonama del Estado de Mexico.
+
+Basado en la gramatica de COOL incluida en el manual de COOL
+
+**************************************************************************
+REQUISITOS:
+	Compilador: 	GCC
+			Bison
+			Flex
+	* Este compilador fue probado bajo Linux (Ubuntu 10.04 )
+
+**************************************************************************
+PARA CONSTRUIR EL COMPILADOR:
+			Sobre la terminal ejecutar comando: make
+
+PARA LIMPIAR ARCHIVOS CONTRUIDOS_
+			Sobre la terminal ejecutar comando: make clean
+
+**************************************************************************

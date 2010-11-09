@@ -1,15 +1,3 @@
-(*
-   The class A2I provides integer-to-string and string-to-integer
-conversion routines.  To use these routines, either inherit them
-in the class where needed, have a dummy variable bound to
-something of type A2I, or simpl write (new A2I).method(argument).
-*)
-
-
-(*
-   c2i   Converts a 1-character string to an integer.  Aborts
-         if the string is not "0" through "9"
-*)
 class A2I {
 
      c2i(char : String) : Int {

@@ -2,27 +2,11 @@
 
 %{
 
-/*
-*	Copyright (C) 2010 Agustin Ramirez Hernandez
-*
-*	This program is free software: you can redistribute it and/or modify
-*	it under the terms of the GNU General Public License as published by
-*	the Free Software Foundation, either version 3 of the License, or (at
-*	your option) any later version.
-*	This program is distributed in the hope that it will be useful, but
-*	WITHOUT ANY WARRANTY; without even the implied warranty of
-*	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-*	General Public License for more details.
-*	You should have received a copy of the GNU General Public License
-*	along with this program. If not, see http://www.gnu.org/licenses/.
-*
-*/
-
 
 #include <stdio.h>
 #define yywrap() 0	
 #define YYSTYPE char*
-
+int num_linea=1;
 %}
 
 %token NUM  
@@ -30,9 +14,10 @@
 %token ITIPO
 %token CADENA
 %token CLASS ELSE FALSE FI IF IN INHERITS LET LOOP POOL THEN WHILE
-%token CASE ESAC NEW OF NOT TRUE SELFTYPE SELF ASIG EQMA ERROR
+%token CASE ESAC NEW OF NOT TRUE ASIG EQMA ERROR
 %token '(' ')' '{' '}' '[' ']' ',' ';' '.' ':'
 %right ASIG
+%right IN	
 %left NOT
 %left MEQ '<' EQ 
 %left '+' '-'
@@ -43,44 +28,40 @@
 %left '.'
 %%
 
-programa : class_list
+programa : class_list {printf("Progrma correcto\n");}
 ;
 
-class_list	:  class class_list ';'
-		|  class ';'
+class_list	:  class_list class
+		|  class
 ;
 
 class 	: CLASS ITIPO '{' feature_list '}' ';'
 	| CLASS ITIPO INHERITS ITIPO '{' feature_list '}' ';'
 ;
 
-feature_list	: feature feature_list 
-		| feature 
+feature_list	: feature ';' feature_list
 		| /* vacio*/
 ;
-// Aqui esta el problem
-feature	: IOBJ feature_tob
+
+feature		: IOBJ ':' ITIPO
+		| IOBJ ':' ITIPO ASIG expr
+		| IOBJ '(' formal_list ')' ':' ITIPO '{' expr '}'
 ;
 
-feature_tob	: ':' ITIPO
-		| ':' ITIPO ASIG expr
-		| '(' formal_list ')' ':' ITIPO '{' expr '}'
-;
-
-formal_list	: IOBJ ':' ITIPO ','
+formal_list	:  formal_list ',' IOBJ ':' ITIPO
 		| IOBJ ':' ITIPO
 		| /* vacio*/
 ;
-expr_asig: ASIG expr
 
+expr_asig: ASIG expr
 ;
 
 expr	: IOBJ expr_asig
 	| exp_dispatch
-	| IOBJ '(' expr_list_e ')'
-	| WHILE expr LOOP expr POOL 
+	| IOBJ '(' expr_param ')'
 	| IF expr THEN expr ELSE expr FI 
-	| expr_block
+	| WHILE expr LOOP expr POOL
+	| '{' expr_list '}'
 	| expr_let
 	| CASE expr OF id_type_plus ESAC
 	| NEW ITIPO
@@ -99,25 +80,30 @@ expr	: IOBJ expr_asig
 	| NUM
 	| TRUE
 	| FALSE
+	| IOBJ
+;
+expr_let: LET let_formal_lst IN expr
 ;
 
-expr_let: LET formal_list IN expr_block
-	//| LET formal_list IN expr
+let_formal_lst	: IOBJ ':' ITIPO ',' let_formal_lst
+		| IOBJ ':' ITIPO expr_asig ',' let_formal_lst
+		| IOBJ ':' ITIPO
+		| IOBJ ':' ITIPO expr_asig
 ;
-exp_dispatch: expr '@' ITIPO '.' IOBJ '(' expr_list_e ')'
-	    | expr '.' IOBJ '(' expr_list_e ')'
+
+exp_dispatch: expr '.' IOBJ '(' expr_param ')' 
+	    | expr '@' ITIPO '.' IOBJ '(' expr_param ')'
 ;
 
 expr_list	: expr ';' expr_list 
 		| expr ';'
 ;
-expr_block	: '{' expr_list '}'
+
+expr_param	: expr ',' expr_param  
+		| expr
+		|/*Epsilon */
 ;
 
-expr_list_e	: expr ',' expr_list_e  
-		| expr
-		|
-;
 id_type_plus	: IOBJ ':' ITIPO EQMA expr ';'
 		| id_type_plus IOBJ ':' ITIPO EQMA expr ';'
 ;
@@ -129,6 +115,6 @@ return 0;
 }
 
 int yyerror(char *m) {
-    printf("Error: %s\n",m);
+    printf("Linea:%d %s\n",num_linea,m);
     return 0;
 }

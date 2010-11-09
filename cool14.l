@@ -21,13 +21,13 @@
 #include "y.tab.h"
 #include <stdio.h>
 #define yylval()
-int num_linea=1;
+extern int num_linea;
 
 %}
 
 DIGITO [0-9]
 INTEGER [DIGITO][DIGITO]*
-ID [a-z_][a-zA-Z0-9_]*
+ID [a-z][a-zA-Z0-9_]*
 IDO [A-Z][a-zA-Z0-9_]*
 
 %%
@@ -40,7 +40,6 @@ IDO [A-Z][a-zA-Z0-9_]*
 		else if(c=='*')
 		{
 			if((c=input())==')'){
-				printf("L%d Comentario\n",num_linea); 
 				break;
 			}
 		}
@@ -52,10 +51,11 @@ IDO [A-Z][a-zA-Z0-9_]*
 	 }
       }
  
-"--"[^}]* printf("L%d Comentario:  %s\n",num_linea, yytext); 
+"--"[^}\n]* /*se coma los comentarios simples*/  
 [\t ]+ /* se come los espacios en blanco */
 
 "\""[^}\n]*"\"" return CADENA;
+
 {DIGITO}+ return NUM;
 class return CLASS;
 else return ELSE;
@@ -76,9 +76,7 @@ new return NEW;
 of return OF;
 not return NOT;
 true return TRUE;
-SELF_TYPE return SELFTYPE;
-self return SELF;
-{IDO} return  ITIPO;
+{IDO} return ITIPO;
 {ID} return IOBJ;
 "(" return '(';
 ")" return ')';
@@ -91,15 +89,15 @@ self return SELF;
 ";" return ';';
 "," return ',';
 "<-" return ASIG;
-"." return ".";
+"." return '.';
 "+" return '+';
 "-" return '-';
 "*" return '*';
 "/" return '/';
 "<" return '<';
 ">" return '>';
-"==" return EQ;
+"=" return EQ;
 "<=" return MEQ;
 "=>" return EQMA;
 . return ERROR;
-%%
+%%1
