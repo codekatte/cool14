@@ -19,7 +19,7 @@ int num_linea=1;
 %right ASIG
 %right IN	
 %left NOT
-%left MEQ '<' EQ 
+%left MEQ '<' '>' EQ 
 %left '+' '-'
 %left '*' '/'
 %left ISVOID
@@ -28,7 +28,7 @@ int num_linea=1;
 %left '.'
 %%
 
-programa : class_list {printf("Progrma correcto\n");}
+programa : class_list
 ;
 
 class_list	:  class_list class
@@ -72,6 +72,7 @@ expr	: IOBJ expr_asig
 	| expr '/' expr
 	| '~' expr
 	| expr '<' expr
+	| expr '>' expr
 	| expr MEQ expr
 	| expr EQ expr
 	| NOT expr

@@ -1,5 +1,6 @@
 /*
 *	Copyright (C) 2010 Agustin Ramirez Hernandez
+			   Eduardo Quintanar Perez
 *
 *	This program is free software: you can redistribute it and/or modify
 *	it under the terms of the GNU General Public License as published by
@@ -30,7 +31,18 @@ REQUISITOS:
 
 **************************************************************************
 PARA CONSTRUIR EL COMPILADOR:
-			Sobre la terminal ejecutar comando: make
+
+		Ejecute el comando:  make
+		
+		El proceso generara un archivo cool14
+
+PARA EJECUTAR EL COMPILADOR
+
+		Ejecute sobre la terminal el comando : ,/cool14 < "Archivo.cl"
+		
+		Fue probado con los archivos incliudos de atio.cl y cells.cl
+
+		ademas de que test.cl fue reescrito para porder ser probado ya que tenia otra sintaxis  		
 
 PARA LIMPIAR ARCHIVOS CONTRUIDOS_
 			Sobre la terminal ejecutar comando: make clean
